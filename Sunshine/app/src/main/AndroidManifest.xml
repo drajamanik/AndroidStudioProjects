@@ -40,7 +40,9 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-
+        
+        <provider
+            android:authorities="com.kanavumnanavum.raj.sunshine.app"
+                android:name="com.kanavumnanavum.raj.sunshine.data.WeatherProvider" />
     </application>
-
 </manifest>

@@ -1,8 +1,8 @@
 package com.kanavumnanavum.raj.sunshine.app;
 
 import android.content.ContentValues;
+import android.database.AbstractWindowedCursor;
 import android.database.Cursor;
-import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.test.AndroidTestCase;
 import android.util.Log;
@@ -27,7 +27,7 @@ public class TestDb extends AndroidTestCase
         db.close();
     }
 
-    public void testInsertReadDb()
+    public void te1stInsertReadDb()
     {
         SQLiteDatabase db = new WeatherDbHelper(this.mContext,null,null,1).getWritableDatabase();
 
@@ -38,11 +38,12 @@ public class TestDb extends AndroidTestCase
         assertTrue(rowId!=-1);
         Log.d(LOG_TAG,"New Row Id:"+rowId);
 
-        ContentValues readValues = new ContentValues();
+        ContentValues readValues=null;
         Cursor cursor=  db.query(WeatherContract.LocationEntry.TABLE_NAME,cvs.keySet().toArray(new String[cvs.size()]),null,null,null,null,null);
         if(cursor.moveToFirst())
         {
-            DatabaseUtils.cursorRowToContentValues(cursor, readValues);
+            readValues = new ContentValues();
+            cursorRowToContentValues(cursor, readValues);
             validateCursor(readValues, cvs);
         }
         else
@@ -50,17 +51,17 @@ public class TestDb extends AndroidTestCase
             fail("No values returned");
         }
 
-        cvs =getWeatherValues(rowId);
+        cvs =getWeatherValues((int)rowId);
         long weatherRowId= db.insert(WeatherContract.WeatherEntry.TABLE_NAME,null,cvs);
 
         assertTrue(weatherRowId!=-1);
         Log.d(LOG_TAG,"New Row Id:"+weatherRowId);
 
-        readValues = new ContentValues();
-        cursor=  db.query(WeatherContract.LocationEntry.TABLE_NAME,cvs.keySet().toArray(new String[cvs.size()]),null,null,null,null,null);
+        cursor=  db.query(WeatherContract.WeatherEntry.TABLE_NAME,cvs.keySet().toArray(new String[cvs.size()]),null,null,null,null,null);
         if(cursor.moveToFirst())
         {
-            DatabaseUtils.cursorRowToContentValues(cursor, readValues);
+            readValues = new ContentValues();
+            cursorRowToContentValues(cursor, readValues);
             validateCursor(readValues, cvs);
         }
         else
@@ -69,6 +70,30 @@ public class TestDb extends AndroidTestCase
         }
     }
 
+    public static void cursorRowToContentValues(Cursor cursor, ContentValues values)
+    {
+        AbstractWindowedCursor awc =
+                (cursor instanceof AbstractWindowedCursor) ? (AbstractWindowedCursor) cursor : null;
+
+        String[] columns = cursor.getColumnNames();
+        int length = columns.length;
+        for (int i = 0; i < length; i++) {
+            if (awc != null && awc.isBlob(i)) {
+                values.put(columns[i], cursor.getBlob(i));
+            }
+            else if(awc!=null && awc.getType(i)==Cursor.FIELD_TYPE_INTEGER)
+            {
+                values.put(columns[i], cursor.getInt(i));
+            }
+            else if(awc!=null && awc.getType(i)==Cursor.FIELD_TYPE_FLOAT)
+            {
+                values.put(columns[i], cursor.getDouble(i));
+            }
+            else {
+                values.put(columns[i], cursor.getString(i));
+            }
+        }
+    }
     private ContentValues getLocationValues()
     {
         ContentValues cvs = new ContentValues();
@@ -79,7 +104,7 @@ public class TestDb extends AndroidTestCase
         return cvs;
     }
 
-    private ContentValues getWeatherValues(long weatherRowId)
+    private ContentValues getWeatherValues(int weatherRowId)
     {
         ContentValues weatherValues = new ContentValues();
         weatherValues.put(WeatherContract.WeatherEntry.COLUMN_LOC_KEY, weatherRowId);
@@ -87,8 +112,8 @@ public class TestDb extends AndroidTestCase
         weatherValues.put(WeatherContract.WeatherEntry.COLUMN_DEGREES, 1.1);
         weatherValues.put(WeatherContract.WeatherEntry.COLUMN_HUMIDITY, 1.2);
         weatherValues.put(WeatherContract.WeatherEntry.COLUMN_PRESSURE, 1.3);
-        weatherValues.put(WeatherContract.WeatherEntry.COLUMN_MAX_TEMP, 75);
-        weatherValues.put(WeatherContract.WeatherEntry.COLUMN_MIN_TEMP, 65);
+        weatherValues.put(WeatherContract.WeatherEntry.COLUMN_MAX_TEMP, 75.0);
+        weatherValues.put(WeatherContract.WeatherEntry.COLUMN_MIN_TEMP, 65.0);
         weatherValues.put(WeatherContract.WeatherEntry.COLUMN_SHORT_DESC, "Asteroids");
         weatherValues.put(WeatherContract.WeatherEntry.COLUMN_WIND_SPEED, 5.5);
         weatherValues.put(WeatherContract.WeatherEntry.COLUMN_WEATHER_ID, 321);

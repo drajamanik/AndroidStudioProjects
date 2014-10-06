@@ -1,26 +1,19 @@
 package com.kanavumnanavum.raj.sunshine.app;
 
 import android.app.Activity;
-import android.app.Fragment;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
-
-import java.util.ArrayList;
-import java.util.List;
 
 
-public class MainActivity extends Activity {
+
+public class MainActivity extends Activity
+{
 
     final String LOG_TAG=MainActivity.class.getSimpleName();
 
@@ -29,10 +22,15 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         Log.e(LOG_TAG,"OnCreate.");
         setContentView(R.layout.activity_main);
-        if (savedInstanceState == null) {
-            getFragmentManager().beginTransaction()
-                    .add(R.id.container, new ForecastFragment())
+        if (savedInstanceState == null)
+        {
+            android.support.v4.app.FragmentActivity frameFragmentActivity=new android.support.v4.app.FragmentActivity();
+            frameFragmentActivity.getSupportFragmentManager().beginTransaction()
+                    .add(R.id.container,new ForecastFragment())
                     .commit();
+//            int commit = getFragmentManager().beginTransaction()
+//                    .add(R.id.container, new ForecastFragment())
+//                    .commit();
         }
     }
 
@@ -109,41 +107,6 @@ public class MainActivity extends Activity {
         else
         {
             Log.d(LOG_TAG,"Could not call "+location+",no ");
-        }
-    }
-
-    /**
-     * A placeholder fragment containing a simple view.
-     */
-    public static class ForcastFragment extends Fragment
-    {
-
-        private ArrayAdapter<String> mForeCastAdapter;
-        public ForcastFragment() {
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-            List<String> weekForecast = new ArrayList<String>();
-            weekForecast.add("Today Sunny - 83/63");
-            weekForecast.add("Tomorrow Foggy - 76/60");
-            weekForecast.add("Weds Cloudy - 73/53");
-            weekForecast.add("Thurs Rainy - 70/52");
-            weekForecast.add("Fri Thunderstrom - 80/70");
-            weekForecast.add("Saturday Sunny - 90/73");
-
-            mForeCastAdapter = new ArrayAdapter<String>(
-            getActivity(),
-            R.layout.list_item_forecast,
-            R.id.list_item_forecast_textView,
-                    weekForecast);
-
-            ListView    listView = (ListView) rootView.findViewById(R.id.list_item_forecast_textView);
-            listView.setAdapter(mForeCastAdapter);
-
-            return rootView;
         }
     }
 }
